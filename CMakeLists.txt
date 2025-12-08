@@ -28,6 +28,10 @@ add_executable(Cinema
         Source/PeopleManager.cpp
         Source/Screen.cpp
         Source/CursorManager.cpp
+        Header/Renderers/SeatRenderer.h
+        Renderers/SeatRenderer.cpp
+        Renderers/SignatureRenderer.cpp
+        Header/Renderers/SignatureRenderer.h
 )
 
 # header folderi

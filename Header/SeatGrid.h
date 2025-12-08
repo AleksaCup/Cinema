@@ -1,8 +1,24 @@
-//
-// Created by Aleksa Cup on 12/8/25.
-//
+#pragma once
+#include "Seat.h"
+#include <vector>
 
-#ifndef CINEMA_SEATGRID_H
-#define CINEMA_SEATGRID_H
+class SeatGrid {
+public:
+    int rows;
+    int cols;
+    float seatSize;
+    std::vector<Seat> seats;
 
-#endif //CINEMA_SEATGRID_H
+    SeatGrid(int rows, int cols, float seatSize);
+
+    void draw(unsigned int shader, unsigned int vao);
+
+    Seat* getSeatAt(float mouseX, float mouseY);
+    void toggleSeat(float mouseX, float mouseY);
+
+    std::vector<Seat*> findContiguousFreeSeats(int count);
+    void markBought(const std::vector<Seat*>& seatsToBuy);
+
+    int getReservedCount();
+    int getBoughtCount();
+};
