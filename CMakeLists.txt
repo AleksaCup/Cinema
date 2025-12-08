@@ -13,6 +13,21 @@ add_executable(Cinema
         Header/glad/glad.h
         Header/KHR/khrplatform.h
         Header/stb_image.h
+        Header/Seat.h
+        Header/SeatGrid.h
+        Header/Door.h
+        Header/Person.h
+        Header/PeopleManager.h
+        Header/Screen.h
+        Header/State.h
+        Header/CursorManager.h
+        Source/Seat.cpp
+        Source/SeatGrid.cpp
+        Source/Door.cpp
+        Source/Person.cpp
+        Source/PeopleManager.cpp
+        Source/Screen.cpp
+        Source/CursorManager.cpp
 )
 
 # header folderi
