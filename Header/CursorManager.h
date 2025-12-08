@@ -1,8 +1,8 @@
-//
-// Created by Aleksa Cup on 12/8/25.
-//
+#pragma once
+#include <GLFW/glfw3.h>
+#include <string>
 
-#ifndef CINEMA_CURSORMANAGER_H
-#define CINEMA_CURSORMANAGER_H
-
-#endif //CINEMA_CURSORMANAGER_H
+class CursorManager {
+public:
+    static GLFWcursor* loadCursor(const std::string& filePath, float hotspotFactorX = 0.2f, float hotspotFactorY = 0.2f);
+};

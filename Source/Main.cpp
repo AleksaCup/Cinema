@@ -1,10 +1,18 @@
 ﻿#include "../Header/glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <__thread/this_thread.h>
+
+#include "SeatGrid.h"
 #include "../Header/Util.h"
+#include "../Header/CursorManager.h"
+#include "Renderers/SeatRenderer.h"
+#include "Renderers/SignatureRenderer.h"
 
 using namespace std::this_thread;
 using namespace std::chrono;
+
+SeatGrid* g_grid = nullptr;
+void mouseClickCallback(GLFWwindow* window, int button, int action, int mods);
 
 unsigned int signatureVAO;
 unsigned int signatureVBO;
@@ -30,8 +38,8 @@ int main()
 
     signatureTex = loadImageToTexture("../Resources/signature.png");
 
-    GLFWcursor* cameraCursor = loadImageToCursor("../Resources/camera-cursor-24.png");
-    if (cameraCursor != nullptr) glfwSetCursor(window, cameraCursor);
+    GLFWcursor* cameraCursor = CursorManager::loadCursor("../Resources/camera-cursor-24.png");
+    if (cameraCursor) glfwSetCursor(window, cameraCursor);
 
     // OpenGL setup
     glEnable(GL_BLEND);
@@ -43,48 +51,18 @@ int main()
     const double FRAME_TIME = 1.0 / TARGET_FPS;
     double lastFrame = glfwGetTime();
 
-    signatureShader = createShader("../Shaders/signature.vert", "../Shaders/signature.frag");
-    glUseProgram(signatureShader);
-    glUniform1i(glGetUniformLocation(signatureShader, "uTex"), 0);
+    //signature
+    unsigned int sigShader, sigVAO, sigTex;
+    initSignatureRendering(sigShader, sigVAO, sigTex, mode->width, mode->height);
 
+    //seats
+    unsigned int seatShader, seatVAO;
+    initSeatRendering(seatShader, seatVAO);
 
-    int sigW = 500;
-    int sigH = 128;
-    int margin = 20;
+    SeatGrid grid(10, 12, 0.035f);
+    g_grid = &grid;
+    glfwSetMouseButtonCallback(window, mouseClickCallback);
 
-    float x1 = mode->width  - sigW - margin;
-    float y1 = mode->height - sigH - margin;
-    float x2 = x1 + sigW;
-    float y2 = y1 + sigH;
-
-    float x1N = (x1 / mode->width)  * 2.0f - 1.0f;
-    float x2N = (x2 / mode->width)  * 2.0f - 1.0f;
-    float y1N = -((y1 / mode->height) * 2.0f - 1.0f);
-    float y2N = -((y2 / mode->height) * 2.0f - 1.0f);
-
-    float signatureVertices[] = {
-        // pos        // uv
-        x1N, y2N,     0.0f, 0.0f,   // top-left
-        x1N, y1N,     0.0f, 1.0f,   // bottom-left
-        x2N, y1N,     1.0f, 1.0f,   // bottom-right
-        x2N, y2N,     1.0f, 0.0f    // top-right
-    };
-
-
-    glGenVertexArrays(1, &signatureVAO);
-    glGenBuffers(1, &signatureVBO);
-
-    glBindVertexArray(signatureVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, signatureVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(signatureVertices), signatureVertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -105,11 +83,10 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(signatureShader);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, signatureTex);
-        glBindVertexArray(signatureVAO);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glUseProgram(seatShader);
+        grid.draw(seatShader, seatVAO);
+
+        drawSignatureRendering(sigShader, sigVAO, sigTex);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -119,3 +96,27 @@ int main()
     glfwTerminate();
     return 0;
 }
+
+void mouseClickCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS)
+        return;
+
+    //refernca na globalni grid
+    if (!g_grid) return;
+
+    //pozicija kursora
+    double mx, my;
+    glfwGetCursorPos(window, &mx, &my);
+
+    //dimenzije windowa
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+
+    // piksel kordinate u NDC
+    float ndcX = (mx / w) * 2.0f - 1.0f;
+    float ndcY = -((my / h) * 2.0f - 1.0f);
+
+    g_grid->toggleSeat(ndcX, ndcY);
+}
+
