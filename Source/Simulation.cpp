@@ -119,6 +119,7 @@ void Simulation::update(float dt)
             movieTimer = 0.0f;
             colorTimer = 0.0f;
             // vracanje u idle stanje
+            grid->resetSeats();
             state = State::Idle;
             break;
 
