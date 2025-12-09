@@ -93,3 +93,10 @@ int SeatGrid::getBoughtCount()
             cnt++;
     return cnt;
 }
+
+void SeatGrid::resetSeats()
+{
+    for (auto& s : seats)
+        s.status = SeatStatus::Free;
+}
+

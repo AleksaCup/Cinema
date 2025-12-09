@@ -21,4 +21,7 @@ public:
 
     int getReservedCount();
     int getBoughtCount();
+
+    void resetSeats();
+
 };
