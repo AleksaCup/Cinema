@@ -1,8 +1,16 @@
-//
-// Created by Aleksa Cup on 12/8/25.
-//
+#pragma once
+#include "../Header/Seat.h"
 
-#ifndef CINEMA_PERSON_H
-#define CINEMA_PERSON_H
+class Person {
+public:
+    float x, y;
+    float speed;
+    Seat* targetSeat;
+    bool seated;
+    bool hasExited = false;
+    bool flipY = false;
 
-#endif //CINEMA_PERSON_H
+    Person(float startX, float startY, Seat* seat);
+
+    void update(float deltaTime);
+};
