@@ -3,8 +3,10 @@
 #include <__thread/this_thread.h>
 
 #include "SeatGrid.h"
+#include "Simulation.h"
 #include "../Header/Util.h"
 #include "../Header/CursorManager.h"
+#include "Renderers/RectRenderer.h"
 #include "Renderers/SeatRenderer.h"
 #include "Renderers/SignatureRenderer.h"
 
@@ -12,6 +14,7 @@ using namespace std::this_thread;
 using namespace std::chrono;
 
 SeatGrid* g_grid = nullptr;
+RectRenderer rectRenderer;
 void mouseClickCallback(GLFWwindow* window, int button, int action, int mods);
 
 unsigned int signatureVAO;
@@ -51,6 +54,8 @@ int main()
     const double FRAME_TIME = 1.0 / TARGET_FPS;
     double lastFrame = glfwGetTime();
 
+    rectRenderer.init();
+
     //signature
     unsigned int sigShader, sigVAO, sigTex;
     initSignatureRendering(sigShader, sigVAO, sigTex, mode->width, mode->height);
@@ -62,13 +67,41 @@ int main()
     SeatGrid grid(10, 12, 0.035f);
     g_grid = &grid;
     glfwSetMouseButtonCallback(window, mouseClickCallback);
+    Simulation sim(&grid, &rectRenderer);
 
-
+    bool keyHandled[10] = { false }; //ovo mi treba da resim bug za kupovinu vise sedista
     while (!glfwWindowShouldClose(window))
     {
         //escape
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
+
+        //kupovina
+        for (int key = GLFW_KEY_1; key <= GLFW_KEY_9; key++)
+        {
+            int idx = key - GLFW_KEY_0;
+
+            if (glfwGetKey(window, key) == GLFW_PRESS)
+            {
+                if (!keyHandled[idx])
+                {
+                    keyHandled[idx] = true;
+
+                    int count = idx;
+                    auto seatsToBuy = grid.findContiguousFreeSeats(count);
+                    if (!seatsToBuy.empty())
+                        grid.markBought(seatsToBuy);
+                }
+            }
+            else
+            {
+                keyHandled[idx] = false;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+            sim.start();
+
 
         //fps limit
         double now = glfwGetTime();
@@ -83,8 +116,12 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        sim.update(delta);
+
         glUseProgram(seatShader);
         grid.draw(seatShader, seatVAO);
+
+        sim.draw();
 
         drawSignatureRendering(sigShader, sigVAO, sigTex);
 

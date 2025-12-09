@@ -44,26 +44,31 @@ void SeatGrid::toggleSeat(float mouseX, float mouseY)
 
 std::vector<Seat*> SeatGrid::findContiguousFreeSeats(int count)
 {
-    std::vector<Seat*> result;
-
     for (int r = rows - 1; r >= 0; r--)
     {
-        result.clear();
+        std::vector<Seat*> block;
+        block.reserve(count);
+
         for (int c = cols - 1; c >= 0; c--)
         {
             Seat& s = seats[r * cols + c];
 
             if (s.status == SeatStatus::Free)
-                result.push_back(&s);
+            {
+                block.push_back(&s);
+                if ((int)block.size() == count)
+                    return block;
+            }
             else
-                result.clear();
-
-            if ((int)result.size() == count)
-                return result;
+            {
+                block.clear();
+            }
         }
     }
+
     return {};
 }
+
 
 void SeatGrid::markBought(const std::vector<Seat*>& seatsToBuy)
 {

@@ -15,23 +15,23 @@ add_executable(Cinema
         Header/stb_image.h
         Header/Seat.h
         Header/SeatGrid.h
-        Header/Door.h
         Header/Person.h
-        Header/PeopleManager.h
-        Header/Screen.h
         Header/State.h
         Header/CursorManager.h
         Source/Seat.cpp
         Source/SeatGrid.cpp
-        Source/Door.cpp
         Source/Person.cpp
-        Source/PeopleManager.cpp
-        Source/Screen.cpp
         Source/CursorManager.cpp
         Header/Renderers/SeatRenderer.h
-        Renderers/SeatRenderer.cpp
-        Renderers/SignatureRenderer.cpp
+        Source/Renderers/SeatRenderer.cpp
+        Source/Renderers/SignatureRenderer.cpp
         Header/Renderers/SignatureRenderer.h
+        Header/Renderers/RectRenderer.h
+        Source/Renderers/RectRenderer.cpp
+        Header/Simulation.h
+        Source/Simulation.cpp
+        Header/Renderers/PersonRenderer.h
+        Source/Renderers/PersonRenderer.cpp
 )
 
 # header folderi
