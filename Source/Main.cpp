@@ -1,6 +1,7 @@
 ﻿#include "../Header/glad/glad.h"
 #include <GLFW/glfw3.h>
-#include <__thread/this_thread.h>
+#include <thread>
+#include <chrono>
 
 #include "SeatGrid.h"
 #include "Simulation.h"

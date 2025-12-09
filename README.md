@@ -14,9 +14,5 @@ mkdir build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake
 
-# 4) Build (Debug konfiguracija)
-cmake --build . --config Debug
-
-# 5) Pokretanje
-cd Debug
-.\Cinema.exe
+---
+Posle ovoga u build folderu se kreira sln koji moze da se pokrene
