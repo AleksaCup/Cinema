@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Renderers/CubeRenderer.h"
 #include "Renderers/RoomRenderer.h"
+#include "Renderers/SignatureRenderer.h"
 
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -71,6 +72,8 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
@@ -86,9 +89,9 @@ int main()
 
     //camera
     Camera camera(
-        glm::vec3(0.0f, 2.0f, 8.0f),
+        glm::vec3(0.0f, 2.6f, -1.2f),
         glm::vec3(0.0f, 1.0f, 0.0f),
-        -90.0f,
+        90.0f,
         0.0f
     );
     g_camera = &camera;
@@ -103,6 +106,10 @@ int main()
     const double TARGET_FPS = 75.0;
     const double FRAME_TIME = 1.0 / TARGET_FPS;
     double lastFrame = glfwGetTime();
+
+    //signature
+    unsigned int sigShader, sigVAO, sigTex;
+    initSignatureRendering(sigShader, sigVAO, sigTex, mode->width, mode->height);
 
     //main loop
     while (!glfwWindowShouldClose(window))
@@ -143,15 +150,19 @@ int main()
         cubeRenderer.setCameraPosition(camera.Position);
         cubeRenderer.setMatrices(projection, view);
 
-        // TEST KOCKA (MORA DA SE VIDI)
         cubeRenderer.drawCube(
             glm::vec3(0.0f, 1.0f, -5.0f),
             glm::vec3(1.0f),
             glm::vec3(1.0f, 0.0f, 0.0f)
         );
 
+        cubeRenderer.setRoomLight(false);
+        cubeRenderer.setScreenLight(true);
+
         // Room
-        roomRenderer.draw(projection, view, cubeRenderer);
+        roomRenderer.draw(projection, view, cubeRenderer, camera.Position, camera.Front);
+
+        drawSignatureRendering(sigShader, sigVAO, sigTex);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -176,6 +187,10 @@ void processInput(GLFWwindow* window, float deltaTime)
         g_camera->processKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         g_camera->processKeyboard(RIGHT, deltaTime);
+
+    // space
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        g_camera->processKeyboard(UP, deltaTime);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)

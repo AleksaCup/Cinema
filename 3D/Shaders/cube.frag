@@ -1,27 +1,63 @@
 #version 330 core
 
-out vec4 FragColor;
+struct Light {
+    vec3 pos;
+    vec3 kA;
+    vec3 kD;
+    vec3 kS;
+};
 
-in vec3 FragPos;
-in vec3 Normal;
+struct Material {
+    vec3 kA;
+    vec3 kD;
+    vec3 kS;
+    float shine;
+};
 
-uniform vec3 objectColor;
-uniform vec3 lightPos;
-uniform vec3 viewPos;
+in vec3 chNor;
+in vec3 chFragPos;
+
+out vec4 outCol;
+
+uniform Light uRoomLight;
+uniform Light uScreenLight;
+
+uniform bool uRoomLightOn;
+uniform bool uScreenLightOn;
+
+uniform Material uMaterial;
+uniform vec3 uViewPos;
+
+vec3 applyLight(Light light, vec3 normal, vec3 viewDir)
+{
+    // ambient
+    vec3 resA = light.kA * uMaterial.kA;
+
+    // diffuse
+    vec3 lightDir = normalize(light.pos - chFragPos);
+    float nD = max(dot(normal, lightDir), 0.0);
+    vec3 resD = light.kD * (nD * uMaterial.kD);
+
+    // specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float s = pow(max(dot(viewDir, reflectDir), 0.0), uMaterial.shine);
+    vec3 resS = light.kS * (s * uMaterial.kS);
+
+    return resA + resD + resS;
+}
 
 void main()
 {
-    vec3 ambient = 0.3 * objectColor;
+    vec3 normal = normalize(chNor);
+    vec3 viewDir = normalize(uViewPos - chFragPos);
 
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * objectColor;
+    vec3 color = vec3(0.0);
 
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = 0.5 * spec * vec3(1.0);
+    if (uRoomLightOn)
+        color += applyLight(uRoomLight, normal, viewDir);
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    if (uScreenLightOn)
+        color += applyLight(uScreenLight, normal, viewDir);
+
+    outCol = vec4(color, 1.0);
 }

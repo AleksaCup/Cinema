@@ -4,11 +4,15 @@
 #include <glm/glm.hpp>
 #include "CubeRenderer.h"
 
+
 class RoomRenderer {
 public:
-    void draw(const glm::mat4& projection,
-              const glm::mat4& view,
-              CubeRenderer& renderer);
+    void draw(const glm::mat4& projection, const glm::mat4& view, CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
+
+private:
+    void drawSeats(CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
+    void drawScreen(CubeRenderer& renderer);
+    void drawDoors(CubeRenderer& renderer);
 };
 
 #endif
