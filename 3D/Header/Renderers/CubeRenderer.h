@@ -12,6 +12,9 @@ private:
     glm::mat4 view;
     glm::vec3 cameraPos;
 
+    bool roomLightOn = true;
+    bool screenLightOn = false;
+
     void setupCube();
 
 public:
@@ -22,9 +25,10 @@ public:
     void setMatrices(const glm::mat4& proj, const glm::mat4& view);
     void setCameraPosition(const glm::vec3& pos);
 
-    void drawCube(const glm::vec3& position,
-                  const glm::vec3& size,
-                  const glm::vec3& color);
+    void setRoomLight(bool on);
+    void setScreenLight(bool on);
+
+    void drawCube(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
 };
 
 #endif

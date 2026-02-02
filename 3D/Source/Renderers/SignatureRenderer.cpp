@@ -42,7 +42,7 @@ void initSignatureRendering(unsigned int& shader, unsigned int& vao, unsigned in
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
-    // pozicija
+    //position
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -55,6 +55,13 @@ void initSignatureRendering(unsigned int& shader, unsigned int& vao, unsigned in
 
 void drawSignatureRendering(unsigned int shader, unsigned int vao, unsigned int tex)
 {
+    GLboolean depthEnabled = glIsEnabled(GL_DEPTH_TEST);
+    GLboolean blendEnabled = glIsEnabled(GL_BLEND);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+
     glUseProgram(shader);
 
     glActiveTexture(GL_TEXTURE0);
@@ -62,4 +69,10 @@ void drawSignatureRendering(unsigned int shader, unsigned int vao, unsigned int 
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    if (depthEnabled) glEnable(GL_DEPTH_TEST);
+    else glDisable(GL_DEPTH_TEST);
+
+    if (blendEnabled) glEnable(GL_BLEND);
+    else glDisable(GL_BLEND);
 }

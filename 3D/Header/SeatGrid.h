@@ -3,46 +3,42 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include "Seat3D.h"
+#include "Seat.h"
 #include "Renderers/CubeRenderer.h"
 
-class SeatGrid3D {
+class SeatGrid {
 private:
     int rows;
     int cols;
-    std::vector<std::vector<Seat3D>> seats;
 
-    float seatWidth = 0.4f;
-    float seatHeight = 0.5f;
-    float seatDepth = 0.4f;
-    float seatSpacing = 0.1f;
-    float rowSpacing = 0.8f;
-    float stepHeight = 0.2f; // Height increase per row
+    std::vector<std::vector<Seat>> seats;
+
+    // === DIMENSIONS ===
+    float seatW = 0.55f;
+    float seatH = 0.6f;
+    float seatD = 0.55f;
+
+    float rowSpacing = 1.2f;
+    float stepHeight = 0.35f;
+    float firstRowZ = 1.0f;
 
 public:
-    SeatGrid3D(int numRows, int numCols);
+    SeatGrid(int rows, int cols);
 
     void draw(CubeRenderer& renderer);
 
-    Seat3D* getSeat(int row, int col);
+    Seat* getSeat(int row, int col);
 
-    std::vector<Seat3D*> findContiguousFreeSeats(int count);
-    void markBought(const std::vector<Seat3D*>& seats);
-
-    // Ray casting for seat picking
-    Seat3D* rayCastPick(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);
-
-    // Getters
-    int getRows() const { return rows; }
-    int getCols() const { return cols; }
-    std::vector<std::vector<Seat3D>>& getSeats() { return seats; }
+    // Ray picking (crosshair / mouse)
+    Seat* pickSeat(const glm::vec3& rayOrigin,
+                   const glm::vec3& rayDir);
 
 private:
     bool rayIntersectsBox(const glm::vec3& rayOrigin,
-                          const glm::vec3& rayDirection,
+                          const glm::vec3& rayDir,
                           const glm::vec3& boxMin,
                           const glm::vec3& boxMax,
-                          float& distance);
+                          float& t);
 };
 
-#endif //CINEMA_SEATGRID_H
+#endif

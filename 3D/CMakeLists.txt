@@ -15,7 +15,6 @@ add_executable(Cinema
         Source/SeatGrid.cpp
         Source/Person.cpp
         Source/Simulation.cpp
-        Source/CursorManager.cpp
 
         # Renderers
         Source/Renderers/CubeRenderer.cpp
@@ -33,19 +32,16 @@ add_executable(Cinema
         Header/SeatGrid.h
 #        Header/Person.h
 #        Header/Simulation.h
-        Header/CursorManager.h
         Header/Renderers/CubeRenderer.h
 #        Header/Renderers/ScreenRenderer.h
         Header/Renderers/SignatureRenderer.h
         Header/Renderers/RoomRenderer.h
 #        Source/Person.cpp
 #        Source/Simulation.cpp
-        Source/CursorManager.cpp
         Header/Renderers/RoomRenderer.h
         Source/Renderers/RoomRenderer.cpp
         Source/Main.cpp
         Header/Util.h
-        Header/CursorManager.h
 )
 
 # Header directories
