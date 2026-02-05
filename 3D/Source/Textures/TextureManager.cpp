@@ -1,4 +1,5 @@
 #include "../Header/Textures/TextureManager.h"
+#include "../Header/glad/glad.h"
 #include "../Header/Util.h"
 #include <vector>
 
@@ -110,8 +111,8 @@ unsigned int TextureManager::get(const std::string& name)
 
 void TextureManager::cleanup()
 {
-    for (auto& [_, tex] : textures)
-        glDeleteTextures(1, &tex);
+    for (auto& kv : textures)
+        glDeleteTextures(1, &kv.second);
 
     textures.clear();
 }
