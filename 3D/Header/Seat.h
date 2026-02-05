@@ -7,7 +7,6 @@ enum class SeatState {
     FREE,
     RESERVED,
     BOUGHT,
-    OCCUPIED
 };
 
 class Seat {
@@ -18,6 +17,9 @@ private:
     SeatState state;
 
 public:
+    static unsigned int texFree;
+    static unsigned int texReserved;
+    static unsigned int texBought;
     Seat(int r, int c, const glm::vec3& pos);
 
     // Getters
@@ -27,10 +29,15 @@ public:
     // State logic
     void toggle();
     void markBought();
-    void markOccupied();
+    bool isFree() const;
+    bool isBought() const;
+    // void markOccupied();
+
+    void reset();
 
     // Visual
     glm::vec3 getColor() const;
+    unsigned int getTexture() const;
 };
 
 #endif // CINEMA_SEAT_H

@@ -9,9 +9,12 @@
 #include <iostream>
 
 #include "Camera.h"
+#include "SeatGrid.h"
+#include "Simulation.h"
 #include "Renderers/CubeRenderer.h"
 #include "Renderers/RoomRenderer.h"
 #include "Renderers/SignatureRenderer.h"
+#include "Textures/TextureManager.h"
 
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -21,8 +24,10 @@ Camera* g_camera = nullptr;
 bool g_firstMouse = true;
 float g_lastX = 0.0f;
 float g_lastY = 0.0f;
+SeatGrid* g_seatGrid = nullptr;
 
 // Callbacks
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window, float deltaTime);
 
@@ -80,6 +85,12 @@ int main()
 
     glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
+    TextureManager::init();
+
+    Seat::texFree     = TextureManager::get("seat_free");
+    Seat::texReserved = TextureManager::get("seat_reserved");
+    Seat::texBought   = TextureManager::get("seat_bought");
+
     //input
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -100,7 +111,15 @@ int main()
     CubeRenderer cubeRenderer;
     cubeRenderer.init();
 
+
+    SeatGrid seatGrid(12, 10);
+
+    g_seatGrid = &seatGrid;
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+
     RoomRenderer roomRenderer;
+
+    Simulation simulation(&seatGrid, &cubeRenderer);
 
     //fps limiter
     const double TARGET_FPS = 75.0;
@@ -110,6 +129,9 @@ int main()
     //signature
     unsigned int sigShader, sigVAO, sigTex;
     initSignatureRendering(sigShader, sigVAO, sigTex, mode->width, mode->height);
+
+    bool keyHandled[10] = { false };
+    bool enterHandled = false;
 
     //main loop
     while (!glfwWindowShouldClose(window))
@@ -129,6 +151,19 @@ int main()
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
+
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+        {
+            if (!enterHandled)
+            {
+                enterHandled = true;
+                simulation.start();
+            }
+        }
+        else
+        {
+            enterHandled = false;
+        }
 
         // Clear
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,6 +185,42 @@ int main()
         cubeRenderer.setCameraPosition(camera.Position);
         cubeRenderer.setMatrices(projection, view);
 
+        // update highlighted seat (ray from camera)
+        seatGrid.updateHighlight(camera.Position, camera.Front);
+
+        //Purchase
+        for (int key = GLFW_KEY_1; key <= GLFW_KEY_9; key++)
+        {
+            int count = key - GLFW_KEY_0; // 1..9
+
+            if (glfwGetKey(window, key) == GLFW_PRESS)
+            {
+                if (!keyHandled[count])
+                {
+                    keyHandled[count] = true;
+
+                    auto seatsToBuy = seatGrid.findContiguousFreeSeats(count);
+                    if (!seatsToBuy.empty())
+                        seatGrid.markBought(seatsToBuy);
+                }
+            }
+            else
+            {
+                keyHandled[count] = false;
+            }
+        }
+
+        simulation.update((float)deltaTime);
+
+        // === LIGHT LOGIC (movie vs normal) ===
+        if (simulation.isMoviePlaying()) {
+            cubeRenderer.setRoomLight(false);
+            cubeRenderer.setScreenLight(true);
+        } else {
+            cubeRenderer.setRoomLight(true);
+            cubeRenderer.setScreenLight(false);
+        }
+
         cubeRenderer.drawCube(
             glm::vec3(0.0f, 1.0f, -5.0f),
             glm::vec3(1.0f),
@@ -160,7 +231,11 @@ int main()
         cubeRenderer.setScreenLight(true);
 
         // Room
-        roomRenderer.draw(projection, view, cubeRenderer, camera.Position, camera.Front);
+        roomRenderer.draw(projection, view, cubeRenderer, camera.Position, camera.Front, simulation.getDoorOpen());
+
+        seatGrid.draw(cubeRenderer);
+
+        simulation.draw();
 
         drawSignatureRendering(sigShader, sigVAO, sigTex);
 
@@ -211,3 +286,20 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
     g_camera->processMouseMovement(xoffset, yoffset);
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS)
+        return;
+
+    if (!g_seatGrid) return;
+
+    Seat* s = g_seatGrid->getHighlightedSeat();
+    if (!s) return;
+
+    if (s->getState() == SeatState::BOUGHT)
+        return;
+
+    s->toggle();
+}
+

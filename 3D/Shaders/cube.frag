@@ -16,6 +16,7 @@ struct Material {
 
 in vec3 chNor;
 in vec3 chFragPos;
+in vec2 chTex;
 
 out vec4 outCol;
 
@@ -28,17 +29,17 @@ uniform bool uScreenLightOn;
 uniform Material uMaterial;
 uniform vec3 uViewPos;
 
+uniform sampler2D uTexture;
+uniform vec3 uTint;
+
 vec3 applyLight(Light light, vec3 normal, vec3 viewDir)
 {
-    // ambient
     vec3 resA = light.kA * uMaterial.kA;
 
-    // diffuse
     vec3 lightDir = normalize(light.pos - chFragPos);
     float nD = max(dot(normal, lightDir), 0.0);
     vec3 resD = light.kD * (nD * uMaterial.kD);
 
-    // specular
     vec3 reflectDir = reflect(-lightDir, normal);
     float s = pow(max(dot(viewDir, reflectDir), 0.0), uMaterial.shine);
     vec3 resS = light.kS * (s * uMaterial.kS);
@@ -51,13 +52,17 @@ void main()
     vec3 normal = normalize(chNor);
     vec3 viewDir = normalize(uViewPos - chFragPos);
 
-    vec3 color = vec3(0.0);
+    vec3 lighting = uMaterial.kA * 0.3;
 
     if (uRoomLightOn)
-        color += applyLight(uRoomLight, normal, viewDir);
+        lighting += applyLight(uRoomLight, normal, viewDir);
 
     if (uScreenLightOn)
-        color += applyLight(uScreenLight, normal, viewDir);
+        lighting += applyLight(uScreenLight, normal, viewDir);
 
-    outCol = vec4(color, 1.0);
+    vec4 texColor = texture(uTexture, chTex);   // ⬅ NOVO
+
+    vec3 finalColor = texColor.rgb * lighting * uTint;
+
+    outCol = vec4(finalColor, texColor.a);
 }

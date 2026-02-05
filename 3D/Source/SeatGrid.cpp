@@ -22,16 +22,54 @@ SeatGrid::SeatGrid(int r, int c)
 
 void SeatGrid::draw(CubeRenderer& renderer)
 {
-    for (auto& row : seats) {
-        for (auto& seat : row) {
+    const float AISLE_W = 1.2f;
+    const float TOTAL_SEAT_W = cols * seatW;
+    const float TOTAL_W = TOTAL_SEAT_W + 2.0f * AISLE_W;
+    const float STEP_OVERLAP = 0.1f;
+
+    for (int r = 0; r < rows; r++)
+    {
+        float y = r * stepHeight;
+        float z = firstRowZ + r * rowSpacing;
+
+        // ===== STEP / PLATFORM =====
+        if (r > 0)
+        {
+            bool lastRow = (r == rows - 1);
+
             renderer.drawCube(
+                lastRow
+                    ? glm::vec3(0.0f, y - 0.15f, z + 0.7f)
+                    : glm::vec3(0.0f, y - 0.15f, z),
+                lastRow
+                    ? glm::vec3(TOTAL_W, stepHeight, 2.4f + STEP_OVERLAP)
+                    : glm::vec3(TOTAL_W, stepHeight, rowSpacing + STEP_OVERLAP),
+                glm::vec3(0.15f)
+            );
+        }
+
+        // ===== SEATS (TEXTURED) =====
+        for (int c = 0; c < cols; c++)
+        {
+            Seat& seat = seats[r][c];
+
+            unsigned int tex = seat.getTexture();
+
+            glm::vec3 tint =
+                (&seat == highlightedSeat)
+                ? glm::vec3(1.25f)   // highlight
+                : glm::vec3(1.0f);
+
+            renderer.drawCubeTextured(
                 seat.getPosition(),
-                { seatW * 0.9f, seatH, seatD },
-                seat.getColor()
+                glm::vec3(seatW * 0.9f, seatH, seatD),
+                tex,
+                tint
             );
         }
     }
 }
+
 
 Seat* SeatGrid::getSeat(int row, int col)
 {
@@ -63,6 +101,86 @@ Seat* SeatGrid::pickSeat(const glm::vec3& rayOrigin,
     }
     return picked;
 }
+
+void SeatGrid::updateHighlight(const glm::vec3& rayOrigin, const glm::vec3& rayDir)
+{
+    highlightedSeat = pickSeat(rayOrigin, rayDir);
+}
+
+std::vector<Seat*> SeatGrid::findContiguousFreeSeats(int count)
+{
+    if (count <= 0) return {};
+    for (int r = rows - 1; r >= 0; --r)
+    {
+        std::vector<Seat*> block;
+        block.reserve(count);
+
+        for (int c = cols - 1; c >= 0; --c)
+        {
+            Seat& s = seats[r][c];
+
+            if (s.isFree())
+            {
+                block.push_back(&s);
+                if ((int)block.size() == count)
+                    return block;
+            }
+            else
+            {
+                block.clear();
+            }
+        }
+    }
+
+    return {};
+}
+
+void SeatGrid::markBought(const std::vector<Seat*>& seatsToBuy)
+{
+    for (Seat* s : seatsToBuy)
+        if (s) s->markBought();
+}
+
+// ===== NOVO: Funkcije za simulaciju =====
+
+int SeatGrid::getReservedCount() const
+{
+    int count = 0;
+    for (const auto& row : seats)
+        for (const auto& seat : row)
+            if (seat.getState() == SeatState::RESERVED)
+                count++;
+    return count;
+}
+
+int SeatGrid::getBoughtCount() const
+{
+    int count = 0;
+    for (const auto& row : seats)
+        for (const auto& seat : row)
+            if (seat.getState() == SeatState::BOUGHT)
+                count++;
+    return count;
+}
+
+void SeatGrid::resetSeats()
+{
+    for (auto& row : seats)
+        for (auto& seat : row)
+            seat.reset();
+}
+
+int SeatGrid::getRows() const
+{
+    return rows;
+}
+
+int SeatGrid::getCols() const
+{
+    return cols;
+}
+
+// ===== RAY INTERSECTION =====
 
 bool SeatGrid::rayIntersectsBox(const glm::vec3& ro, const glm::vec3& rd, const glm::vec3& minB, const glm::vec3& maxB, float& t)
 {

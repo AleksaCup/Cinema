@@ -7,12 +7,12 @@
 
 class RoomRenderer {
 public:
-    void draw(const glm::mat4& projection, const glm::mat4& view, CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
+    void draw(const glm::mat4& projection, const glm::mat4& view, CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront, float doorOpen);
 
 private:
-    void drawSeats(CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
+    // void drawSeats(CubeRenderer& renderer, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
     void drawScreen(CubeRenderer& renderer);
-    void drawDoors(CubeRenderer& renderer);
+    void drawDoors(CubeRenderer& renderer, float doorOpen);
 };
 
 #endif
