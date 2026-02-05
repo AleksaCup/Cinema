@@ -7,7 +7,8 @@ void RoomRenderer::draw(const glm::mat4& projection,
                         CubeRenderer& renderer,
                         const glm::vec3& cameraPos,
                         const glm::vec3& cameraFront,
-                        float doorOpen)
+                        float doorOpen,
+                        bool showStaticScreen)
 {
     renderer.setMatrices(projection, view);
 
@@ -47,7 +48,8 @@ void RoomRenderer::draw(const glm::mat4& projection,
         {0.18f, 0.18f, 0.18f}
     );
 
-    drawScreen(renderer);
+    if (showStaticScreen)
+        drawScreen(renderer);
     drawDoors(renderer, doorOpen);
     // drawSeats(renderer, cameraPos, cameraFront);
 }

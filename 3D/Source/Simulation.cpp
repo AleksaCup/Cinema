@@ -239,10 +239,10 @@ void Simulation::draw()
         );
     }
 
-    // ===== SCREEN DURING MOVIE =====
-    if (state == State::MoviePlaying)
+    // ===== SCREEN TEXTURE DURING SIMULATION =====
+    if (state != State::Idle)
     {
-        int idx = getCurrentScreenIndex();
+        int idx = (state == State::MoviePlaying) ? getCurrentScreenIndex() : 1;
 
         unsigned int tex =
             TextureManager::get("screen" + std::to_string(idx));
