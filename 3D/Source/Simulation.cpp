@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Textures/TextureManager.h"
+#include "Renderers/PersonRenderer.h"
 
 Simulation::Simulation(SeatGrid* grid, CubeRenderer* renderer)
     : state(State::Idle), grid(grid), cubeRenderer(renderer)
@@ -59,7 +60,8 @@ void Simulation::spawnPeople()
         float doorZ = -1.0f;  // Pozicija vrata u Z osi
         float doorY = 0.3f;   // Visina vrata (malo iznad poda)
 
-        people.emplace_back(doorX, doorY, doorZ, target);
+        int appearance = 1 + (rand() % 15);
+        people.emplace_back(doorX, doorY, doorZ, target, appearance);
     }
 }
 
@@ -229,20 +231,14 @@ void Simulation::draw()
     // ===== PEOPLE =====
     for (auto& p : people)
     {
-        glm::vec3 pos(p.x, p.y, p.z);
-        glm::vec3 size(0.3f, 0.5f, 0.3f);
-
-        cubeRenderer->drawCube(
-            pos,
-            size,
-            {0.8f, 0.6f, 0.4f}
-        );
+        unsigned int personTex = TextureManager::get("person" + std::to_string(p.appearanceIndex));
+        PersonRenderer::draw(*cubeRenderer, glm::vec3(p.x, p.y, p.z), personTex);
     }
 
-    // ===== SCREEN DURING MOVIE =====
-    if (state == State::MoviePlaying)
+    // ===== SCREEN TEXTURE DURING SIMULATION =====
+    if (state != State::Idle)
     {
-        int idx = getCurrentScreenIndex();
+        int idx = (state == State::MoviePlaying) ? getCurrentScreenIndex() : 1;
 
         unsigned int tex =
             TextureManager::get("screen" + std::to_string(idx));
@@ -255,26 +251,6 @@ void Simulation::draw()
         );
     }
 
-    // ===== DOORS =====
-    if (state == State::OpeningDoors ||
-        state == State::PeopleEntering ||
-        state == State::PeopleLeaving)
-    {
-        glm::vec3 doorSize(0.5f, 1.0f, 0.1f);
-        glm::vec3 doorColor(0.4f, 0.2f, 0.1f);
-
-        cubeRenderer->drawCube(
-            {-3.5f, 0.5f, -1.0f},
-            doorSize,
-            doorColor
-        );
-
-        cubeRenderer->drawCube(
-            { 3.5f, 0.5f, -1.0f},
-            doorSize,
-            doorColor
-        );
-    }
 }
 
 
@@ -295,9 +271,9 @@ float Simulation::getDoorOpen() const
 
 // ===== Person Implementation =====
 
-Person::Person(float startX, float startY, float startZ, Seat* targetSeat)
+Person::Person(float startX, float startY, float startZ, Seat* targetSeat, int appearance)
     : x(startX), y(startY), z(startZ), target(targetSeat),
-      seated(false), hasExited(false), speed(1.5f), stage(0)
+      seated(false), hasExited(false), speed(1.5f), stage(0), appearanceIndex(appearance)
 {
     // Odrediti sa koje strane ulazi (levo ili desno)
     isLeftSide = (startX < 0.0f);

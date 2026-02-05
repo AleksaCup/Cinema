@@ -212,8 +212,9 @@ int main()
 
         simulation.update((float)deltaTime);
 
-        // === LIGHT LOGIC (movie vs normal) ===
-        if (simulation.isMoviePlaying()) {
+        // === LIGHT LOGIC (simulation vs normal) ===
+        bool simulationActive = (simulation.getState() != Simulation::State::Idle);
+        if (simulationActive) {
             cubeRenderer.setRoomLight(false);
             cubeRenderer.setScreenLight(true);
         } else {
@@ -227,11 +228,9 @@ int main()
             glm::vec3(1.0f, 0.0f, 0.0f)
         );
 
-        cubeRenderer.setRoomLight(false);
-        cubeRenderer.setScreenLight(true);
-
         // Room
-        roomRenderer.draw(projection, view, cubeRenderer, camera.Position, camera.Front, simulation.getDoorOpen());
+        bool showStaticScreen = (simulation.getState() == Simulation::State::Idle);
+        roomRenderer.draw(projection, view, cubeRenderer, camera.Position, camera.Front, simulation.getDoorOpen(), showStaticScreen);
 
         seatGrid.draw(cubeRenderer);
 

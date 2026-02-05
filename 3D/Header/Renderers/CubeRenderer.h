@@ -30,6 +30,7 @@ public:
     void setScreenLight(bool on);
 
     void drawCube(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
+    void drawCubeRotatedY(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color, float angleRad);
     void drawCubeTextured(const glm::vec3& position, const glm::vec3& scale, unsigned int texture, const glm::vec3& tint = glm::vec3(1.0f));
 
 };

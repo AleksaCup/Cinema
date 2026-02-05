@@ -117,6 +117,54 @@ void CubeRenderer::drawCube(const glm::vec3& position, const glm::vec3& size, co
     glBindVertexArray(0);
 }
 
+
+void CubeRenderer::drawCubeRotatedY(const glm::vec3& position,
+                                    const glm::vec3& size,
+                                    const glm::vec3& color,
+                                    float angleRad)
+{
+    glUseProgram(shaderProgram);
+
+    glm::mat4 uM(1.0f);
+    uM = glm::translate(uM, position);
+    uM = glm::rotate(uM, angleRad, glm::vec3(0.0f, 1.0f, 0.0f));
+    uM = glm::scale(uM, size);
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uM"), 1, GL_FALSE, glm::value_ptr(uM));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uP"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    glUniform3fv(glGetUniformLocation(shaderProgram, "uViewPos"), 1, glm::value_ptr(cameraPos));
+
+    glUniform1i(glGetUniformLocation(shaderProgram, "uRoomLightOn"), roomLightOn ? 1 : 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "uScreenLightOn"), screenLightOn ? 1 : 0);
+
+    glUniform3f(glGetUniformLocation(shaderProgram, "uRoomLight.pos"), 0.0f, 6.0f, 6.0f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uRoomLight.kA"), 0.20f, 0.20f, 0.20f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uRoomLight.kD"), 1.00f, 1.00f, 1.00f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uRoomLight.kS"), 1.00f, 1.00f, 1.00f);
+
+    glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.pos"), 0.0f, 2.6f, -1.8f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.kA"), 0.05f, 0.05f, 0.05f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.kD"), 1.00f, 1.00f, 1.00f);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.kS"), 1.00f, 1.00f, 1.00f);
+
+    glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kA"), color.r, color.g, color.b);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kD"), color.r, color.g, color.b);
+    glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kS"), 1.0f, 1.0f, 1.0f);
+    glUniform1f(glGetUniformLocation(shaderProgram, "uMaterial.shine"), 32.0f);
+
+    glUniform3f(glGetUniformLocation(shaderProgram, "uTint"), 1.0f, 1.0f, 1.0f);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+    glUniform1i(glGetUniformLocation(shaderProgram, "uTexture"), 0);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
 void CubeRenderer::drawCubeTextured(const glm::vec3& position,
                                     const glm::vec3& scale,
                                     unsigned int texture,

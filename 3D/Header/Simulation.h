@@ -19,8 +19,9 @@ public:
     float speed;
     int stage;  // 0=dijagonalno do reda, 1=horizontalno do sedišta
     bool isLeftSide;  // Da li ulazi sa leve strane
+    int appearanceIndex;
 
-    Person(float startX, float startY, float startZ, Seat* targetSeat);
+    Person(float startX, float startY, float startZ, Seat* targetSeat, int appearance);
     void update(float dt);
 };
 

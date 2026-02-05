@@ -21,6 +21,7 @@ add_executable(Cinema
 #        Source/Renderers/ScreenRenderer.cpp
         Source/Renderers/SignatureRenderer.cpp
         Source/Renderers/RoomRenderer.cpp
+        Source/Renderers/PersonRenderer.cpp
 
         # Headers
         Header/Util.h
@@ -36,12 +37,9 @@ add_executable(Cinema
 #        Header/Renderers/ScreenRenderer.h
         Header/Renderers/SignatureRenderer.h
         Header/Renderers/RoomRenderer.h
+        Header/Renderers/PersonRenderer.h
 #        Source/Person.cpp
 #        Source/Simulation.cpp
-        Header/Renderers/RoomRenderer.h
-        Source/Renderers/RoomRenderer.cpp
-        Source/Main.cpp
-        Header/Util.h
         Source/Textures/TextureManager.cpp
         Header/Textures/TextureManager.h
         Header/Simulation.h
