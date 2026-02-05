@@ -7,6 +7,7 @@ class CubeRenderer {
 private:
     unsigned int VAO, VBO;
     unsigned int shaderProgram;
+    unsigned int defaultTexture;
 
     glm::mat4 projection;
     glm::mat4 view;
@@ -29,6 +30,8 @@ public:
     void setScreenLight(bool on);
 
     void drawCube(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color);
+    void drawCubeTextured(const glm::vec3& position, const glm::vec3& scale, unsigned int texture, const glm::vec3& tint = glm::vec3(1.0f));
+
 };
 
 #endif

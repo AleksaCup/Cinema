@@ -42,6 +42,9 @@ add_executable(Cinema
         Source/Renderers/RoomRenderer.cpp
         Source/Main.cpp
         Header/Util.h
+        Source/Textures/TextureManager.cpp
+        Header/Textures/TextureManager.h
+        Header/Simulation.h
 )
 
 # Header directories
