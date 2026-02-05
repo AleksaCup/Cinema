@@ -7,7 +7,8 @@ void RoomRenderer::draw(const glm::mat4& projection,
                         CubeRenderer& renderer,
                         const glm::vec3& cameraPos,
                         const glm::vec3& cameraFront,
-                        float doorOpen)
+                        float doorOpen,
+                        bool showStaticScreen)
 {
     renderer.setMatrices(projection, view);
 
@@ -47,7 +48,8 @@ void RoomRenderer::draw(const glm::mat4& projection,
         {0.18f, 0.18f, 0.18f}
     );
 
-    drawScreen(renderer);
+    if (showStaticScreen)
+        drawScreen(renderer);
     drawDoors(renderer, doorOpen);
     // drawSeats(renderer, cameraPos, cameraFront);
 }
@@ -173,18 +175,34 @@ void RoomRenderer::drawScreen(CubeRenderer& renderer)
 void RoomRenderer::drawDoors(CubeRenderer& renderer, float doorOpen)
 {
     const glm::vec3 doorColor = {0.25f, 0.15f, 0.05f};
-    float slideZ = doorOpen * 1.2f;
+    float openAngle = doorOpen * glm::radians(100.0f);
 
-    renderer.drawCube(
-        {-3.9f, 0.9f, -1.2f - slideZ},
-        {0.1f, 1.8f, 0.9f},
-        doorColor
+    // Left wall doors (swing animation)
+    renderer.drawCubeRotatedY(
+        {-3.88f, 0.9f, -1.45f},
+        {0.1f, 1.8f, 0.45f},
+        doorColor,
+        openAngle
+    );
+    renderer.drawCubeRotatedY(
+        {-3.88f, 0.9f, -0.95f},
+        {0.1f, 1.8f, 0.45f},
+        doorColor,
+        -openAngle
     );
 
-    renderer.drawCube(
-        {3.9f, 0.9f, -1.2f - slideZ},
-        {0.1f, 1.8f, 0.9f},
-        doorColor
+    // Right wall doors (swing animation)
+    renderer.drawCubeRotatedY(
+        {3.88f, 0.9f, -1.45f},
+        {0.1f, 1.8f, 0.45f},
+        doorColor,
+        -openAngle
+    );
+    renderer.drawCubeRotatedY(
+        {3.88f, 0.9f, -0.95f},
+        {0.1f, 1.8f, 0.45f},
+        doorColor,
+        openAngle
     );
 }
 
