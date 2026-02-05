@@ -31,6 +31,38 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window, float deltaTime);
 
+void setDepthTest(bool enabled)
+{
+    if (enabled) {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+    }
+    else {
+        glDisable(GL_DEPTH_TEST);
+    }
+}
+
+void setBackfaceCulling(bool enabled)
+{
+    if (enabled) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+    }
+    else {
+        glDisable(GL_CULL_FACE);
+    }
+}
+
+void applyRenderState(bool depthTestEnabled, bool backfaceCullingEnabled)
+{
+    setDepthTest(depthTestEnabled);
+
+    // Requirement check: while depth testing is enabled, toggling backface
+    // culling should not change the final image, so keep culling effectively off.
+    bool effectiveBackfaceCulling = depthTestEnabled ? false : backfaceCullingEnabled;
+    setBackfaceCulling(effectiveBackfaceCulling);
+}
+
 int main()
 {
     if (!glfwInit()) {
@@ -75,8 +107,14 @@ int main()
     glfwGetFramebufferSize(window, &fbW, &fbH);
     glViewport(0, 0, fbW, fbH);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    // glEnable(GL_DEPTH_TEST);
+    // glDepthFunc(GL_LESS);
+    bool depthTestEnabled = true;
+    bool backfaceCullingEnabled = false;
+
+    applyRenderState(depthTestEnabled, backfaceCullingEnabled);
+
+
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -132,6 +170,8 @@ int main()
 
     bool keyHandled[10] = { false };
     bool enterHandled = false;
+    bool f1Handled = false;
+    bool f2Handled = false;
 
     //main loop
     while (!glfwWindowShouldClose(window))
@@ -149,9 +189,52 @@ int main()
         // Input
         processInput(window, (float)deltaTime);
 
+        // exit
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
+        // depth test
+        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
+        {
+            if (!f1Handled)
+            {
+                f1Handled = true;
+                depthTestEnabled = !depthTestEnabled;
+                applyRenderState(depthTestEnabled, backfaceCullingEnabled);
+                std::cout << "Depth test: " << (depthTestEnabled ? "ON" : "OFF")
+                          << ", backface culling (effective): "
+                          << ((depthTestEnabled ? false : backfaceCullingEnabled) ? "ON" : "OFF")
+                          << '\n';
+            }
+        }
+        else
+        {
+            f1Handled = false;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
+        {
+            if (!f2Handled)
+            {
+                f2Handled = true;
+                backfaceCullingEnabled = !backfaceCullingEnabled;
+                applyRenderState(depthTestEnabled, backfaceCullingEnabled);
+                std::cout << "Backface culling (requested): " << (backfaceCullingEnabled ? "ON" : "OFF");
+
+                if (depthTestEnabled) {
+                    std::cout << " [effective OFF while depth test is ON]";
+                }
+
+                std::cout << '\n';
+            }
+        }
+        else
+        {
+            f2Handled = false;
+        }
+
+
+        // enter
         if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
         {
             if (!enterHandled)
