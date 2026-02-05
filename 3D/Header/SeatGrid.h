@@ -41,7 +41,7 @@ private:
 
     // Row spacing
     const float rowSpacing = 1.0f;
-    const float firstRowZ = 0.5f;
+    const float firstRowZ = 1.5f;
     const float stepHeight = 0.3f;
 
     Seat* pickSeat(const glm::vec3& rayOrigin, const glm::vec3& rayDir);
