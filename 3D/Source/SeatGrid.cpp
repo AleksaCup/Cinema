@@ -32,7 +32,7 @@ void SeatGrid::draw(CubeRenderer& renderer)
         float y = r * stepHeight;
         float z = firstRowZ + r * rowSpacing;
 
-        // ===== STEP / PLATFORM =====
+        //STEP / PLATFORM
         if (r > 0)
         {
             bool lastRow = (r == rows - 1);
@@ -48,7 +48,7 @@ void SeatGrid::draw(CubeRenderer& renderer)
             );
         }
 
-        // ===== SEATS (TEXTURED) =====
+        //SEATS
         for (int c = 0; c < cols; c++)
         {
             Seat& seat = seats[r][c];
@@ -141,8 +141,6 @@ void SeatGrid::markBought(const std::vector<Seat*>& seatsToBuy)
         if (s) s->markBought();
 }
 
-// ===== NOVO: Funkcije za simulaciju =====
-
 int SeatGrid::getReservedCount() const
 {
     int count = 0;
@@ -180,7 +178,7 @@ int SeatGrid::getCols() const
     return cols;
 }
 
-// ===== RAY INTERSECTION =====
+//RAY INTERSECTION
 
 bool SeatGrid::rayIntersectsBox(const glm::vec3& ro, const glm::vec3& rd, const glm::vec3& minB, const glm::vec3& maxB, float& t)
 {

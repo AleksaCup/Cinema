@@ -22,7 +22,6 @@ public:
     static unsigned int texBought;
     Seat(int r, int c, const glm::vec3& pos);
 
-    // Getters
     const glm::vec3& getPosition() const;
     SeatState getState() const;
 
@@ -40,4 +39,4 @@ public:
     unsigned int getTexture() const;
 };
 
-#endif // CINEMA_SEAT_H
+#endif

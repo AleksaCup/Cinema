@@ -172,7 +172,7 @@ void CubeRenderer::drawCubeTextured(const glm::vec3& position,
 {
     glUseProgram(shaderProgram);
 
-    // 1) MODEL + MATRICE (uM, uV, uP)
+    //MODEL + MATRICE (uM, uV, uP)
     glm::mat4 M(1.0f);
     M = glm::translate(M, position);
     M = glm::scale(M, scale);
@@ -181,10 +181,10 @@ void CubeRenderer::drawCubeTextured(const glm::vec3& position,
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uV"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uP"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    // 2) KAMERA
+    //CAMERA
     glUniform3fv(glGetUniformLocation(shaderProgram, "uViewPos"), 1, glm::value_ptr(cameraPos));
 
-    // 3) LIGHT TOGGLES + LIGHT PARAMS (isto kao u drawCube)
+    //LIGHT TOGGLES + LIGHT PARAMS
     glUniform1i(glGetUniformLocation(shaderProgram, "uRoomLightOn"), roomLightOn ? 1 : 0);
     glUniform1i(glGetUniformLocation(shaderProgram, "uScreenLightOn"), screenLightOn ? 1 : 0);
 
@@ -198,21 +198,21 @@ void CubeRenderer::drawCubeTextured(const glm::vec3& position,
     glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.kD"), 1.00f, 1.00f, 1.00f);
     glUniform3f(glGetUniformLocation(shaderProgram, "uScreenLight.kS"), 1.00f, 1.00f, 1.00f);
 
-    // ✅ 4) OVO DODAJEŠ (MATERIJAL ZA TEKSTURE) — OVDE
+    //TEXTURE MATERIAL
     glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kA"), 1.0f, 1.0f, 1.0f);
     glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kD"), 1.0f, 1.0f, 1.0f);
     glUniform3f(glGetUniformLocation(shaderProgram, "uMaterial.kS"), 1.0f, 1.0f, 1.0f);
     glUniform1f(glGetUniformLocation(shaderProgram, "uMaterial.shine"), 32.0f);
 
-    // 5) TINT
+    //TINT
     glUniform3fv(glGetUniformLocation(shaderProgram, "uTint"), 1, glm::value_ptr(tint));
 
-    // 6) TEXTURE
+    //TEXTURE
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(glGetUniformLocation(shaderProgram, "uTexture"), 0);
 
-    // 7) DRAW
+    //DRAW
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
@@ -221,32 +221,6 @@ void CubeRenderer::drawCubeTextured(const glm::vec3& position,
 }
 
 void CubeRenderer::setupCube() {
-    // float vertices[] = {
-    //     // positions          // normals
-    //     // Back
-    //     -0.5f,-0.5f,-0.5f,  0,0,-1,  0.5f,-0.5f,-0.5f,  0,0,-1,  0.5f, 0.5f,-0.5f,  0,0,-1,
-    //      0.5f, 0.5f,-0.5f,  0,0,-1, -0.5f, 0.5f,-0.5f,  0,0,-1, -0.5f,-0.5f,-0.5f,  0,0,-1,
-    //
-    //     // Front
-    //     -0.5f,-0.5f, 0.5f,  0,0, 1,  0.5f,-0.5f, 0.5f,  0,0, 1,  0.5f, 0.5f, 0.5f,  0,0, 1,
-    //      0.5f, 0.5f, 0.5f,  0,0, 1, -0.5f, 0.5f, 0.5f,  0,0, 1, -0.5f,-0.5f, 0.5f,  0,0, 1,
-    //
-    //     // Left
-    //     -0.5f, 0.5f, 0.5f, -1,0,0, -0.5f, 0.5f,-0.5f, -1,0,0, -0.5f,-0.5f,-0.5f, -1,0,0,
-    //     -0.5f,-0.5f,-0.5f, -1,0,0, -0.5f,-0.5f, 0.5f, -1,0,0, -0.5f, 0.5f, 0.5f, -1,0,0,
-    //
-    //     // Right
-    //      0.5f, 0.5f, 0.5f,  1,0,0,  0.5f, 0.5f,-0.5f,  1,0,0,  0.5f,-0.5f,-0.5f,  1,0,0,
-    //      0.5f,-0.5f,-0.5f,  1,0,0,  0.5f,-0.5f, 0.5f,  1,0,0,  0.5f, 0.5f, 0.5f,  1,0,0,
-    //
-    //     // Bottom
-    //     -0.5f,-0.5f,-0.5f,  0,-1,0,  0.5f,-0.5f,-0.5f,  0,-1,0,  0.5f,-0.5f, 0.5f,  0,-1,0,
-    //      0.5f,-0.5f, 0.5f,  0,-1,0, -0.5f,-0.5f, 0.5f,  0,-1,0, -0.5f,-0.5f,-0.5f,  0,-1,0,
-    //
-    //     // Top
-    //     -0.5f, 0.5f,-0.5f,  0,1,0,   0.5f, 0.5f,-0.5f,  0,1,0,   0.5f, 0.5f, 0.5f,  0,1,0,
-    //      0.5f, 0.5f, 0.5f,  0,1,0,  -0.5f, 0.5f, 0.5f,  0,1,0,  -0.5f, 0.5f,-0.5f,  0,1,0
-    // };
     float vertices[] = {
         // positions          // normals           // texcoords
         // BACK

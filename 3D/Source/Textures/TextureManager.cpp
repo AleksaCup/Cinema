@@ -68,7 +68,7 @@ void TextureManager::init()
     textures["screen19"] = loadImageToTexture("../Resources/Screen/19.png");
     textures["screen20"] = loadImageToTexture("../Resources/Screen/20.png");
 
-    // people (1 model + 15 different textures)
+    // people
     textures["person1"]  = createCheckerTexture(180,  50,  60);
     textures["person2"]  = createCheckerTexture( 60, 120, 200);
     textures["person3"]  = createCheckerTexture( 40, 160, 120);

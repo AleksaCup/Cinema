@@ -5,27 +5,8 @@
 #include "Renderers/CubeRenderer.h"
 #include <vector>
 
-// Forward declaration
-class Seat;
+#include "Person.h"
 
-// Person class
-class Person
-{
-public:
-    float x, y, z;
-    Seat* target;
-    bool seated;
-    bool hasExited;
-    float speed;
-    int stage;  // 0=dijagonalno do reda, 1=horizontalno do sedišta
-    bool isLeftSide;  // Da li ulazi sa leve strane
-    int appearanceIndex;
-
-    Person(float startX, float startY, float startZ, Seat* targetSeat, int appearance);
-    void update(float dt);
-};
-
-// Simulation class
 class Simulation
 {
 public:
@@ -59,7 +40,7 @@ private:
 
     float movieTimer;
     float colorTimer;
-    float r, g, b;  // Screen colors during movie
+    float r, g, b;
 
     void spawnPeople();
     bool allSeated();
@@ -68,4 +49,4 @@ private:
     int getCurrentScreenIndex() const;
 };
 
-#endif // SIMULATION_H
+#endif

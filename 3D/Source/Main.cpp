@@ -185,7 +185,7 @@ int main()
         cubeRenderer.setCameraPosition(camera.Position);
         cubeRenderer.setMatrices(projection, view);
 
-        // update highlighted seat (ray from camera)
+        //update highlighted seat (ray from camera)
         seatGrid.updateHighlight(camera.Position, camera.Front);
 
         //Purchase
@@ -212,7 +212,7 @@ int main()
 
         simulation.update((float)deltaTime);
 
-        // === LIGHT LOGIC (simulation vs normal) ===
+        //light logic
         bool simulationActive = (simulation.getState() != Simulation::State::Idle);
         if (simulationActive) {
             cubeRenderer.setRoomLight(false);

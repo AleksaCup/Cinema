@@ -3,10 +3,10 @@
 
 void PersonRenderer::draw(CubeRenderer& renderer, const glm::vec3& basePos, unsigned int textureId)
 {
-    // Torso (textured)
+    // Torso
     renderer.drawCubeTextured(basePos + glm::vec3(0.0f, 0.50f, 0.0f), glm::vec3(0.28f, 0.40f, 0.18f), textureId);
 
-    // Head (textured)
+    // Head
     renderer.drawCubeTextured(basePos + glm::vec3(0.0f, 0.88f, 0.0f), glm::vec3(0.20f, 0.20f, 0.20f), textureId, glm::vec3(1.08f));
 
     // Legs

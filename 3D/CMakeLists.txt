@@ -43,6 +43,7 @@ add_executable(Cinema
         Source/Textures/TextureManager.cpp
         Header/Textures/TextureManager.h
         Header/Simulation.h
+        Header/Person.h
 )
 
 # Header directories

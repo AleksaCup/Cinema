@@ -40,7 +40,6 @@ bool Seat::isBought() const
     return state == SeatState::BOUGHT;
 }
 
-// NOVO: Reset za simulaciju
 void Seat::reset() {
     state = SeatState::FREE;
 }

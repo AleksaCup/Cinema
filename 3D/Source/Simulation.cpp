@@ -35,10 +35,10 @@ void Simulation::spawnPeople()
         return;
     }
 
-    // Random broj ljudi
+    //number of people
     int count = 1 + rand() % maxPeople;
 
-    // Rezervisana ili kupljena sedišta
+    //candidates(reserved + bought seats)
     std::vector<Seat*> candidates;
     for (int r = 0; r < grid->getRows(); r++)
     {
@@ -55,10 +55,9 @@ void Simulation::spawnPeople()
     {
         Seat* target = candidates[rand() % candidates.size()];
 
-        // Ulaz: polovina ide sa leve strane, polovina sa desne
-        float doorX = (i % 2 == 0) ? -3.5f : 3.5f;  // Leva i desna vrata
-        float doorZ = -1.0f;  // Pozicija vrata u Z osi
-        float doorY = 0.3f;   // Visina vrata (malo iznad poda)
+        float doorX = (i % 2 == 0) ? -3.5f : 3.5f;  //left and right doors
+        float doorZ = -1.0f;
+        float doorY = 0.05f;
 
         int appearance = 1 + (rand() % 15);
         people.emplace_back(doorX, doorY, doorZ, target, appearance);
@@ -94,7 +93,7 @@ void Simulation::update(float dt)
 
         case State::MoviePlaying:
             updateMovie(dt);
-            if (movieTimer > 20.0f)  // 20 sekundi
+            if (movieTimer > 20.0f)  //duration of movie
                 state = State::PeopleLeaving;
             break;
 
@@ -104,19 +103,17 @@ void Simulation::update(float dt)
             {
                 if (p.hasExited) continue;
 
-                // Stage 0: Izađi iz reda do hodnika (horizontalno do kraja reda)
-                // Stage 1: Idi dijagonalno do vrata
+                //stage 0: go to the coridor
+                //stage 1: go down diagonally
 
-                if (p.stage == 1)  // Još je u stage 1 (sedeo)
+                if (p.stage == 1)
                 {
-                    // Vrati se na stage 0 za izlazak
                     p.stage = 0;
                     p.seated = false;
                 }
 
                 if (p.stage == 0)
                 {
-                    // Prvo izađi horizontalno do kraja hodnika
                     float aisleX = p.isLeftSide ? -3.5f : 3.5f;
                     float dx = aisleX - p.x;
 
@@ -126,13 +123,12 @@ void Simulation::update(float dt)
                     }
                     else
                     {
-                        // Stigao do hodnika, sad dijagonalno ka vratima
-                        p.stage = -1;  // Oznaka za dijagonalno kretanje ka vratima
+                        p.stage = -1;  //diagonal movement to the doors
                     }
                 }
                 else if (p.stage == -1)
                 {
-                    // Dijagonalno kretanje do vrata
+                    //diagonal movement to the doors
                     float doorX = p.isLeftSide ? -3.5f : 3.5f;
                     float doorY = 0.3f;
                     float doorZ = -1.0f;
@@ -145,14 +141,14 @@ void Simulation::update(float dt)
 
                     if (dist > 0.05f)
                     {
-                        // Dijagonalno kretanje ka vratima
+                        //diagonal movement to the doors
                         p.x += (dx / dist) * p.speed * dt;
                         p.y += (dy / dist) * p.speed * dt;
                         p.z += (dz / dist) * p.speed * dt;
                     }
                     else
                     {
-                        // Stigao do vrata
+                        //reached the doors
                         p.hasExited = true;
                     }
                 }
@@ -170,7 +166,6 @@ void Simulation::update(float dt)
                 people.clear();
                 movieTimer = 0.0f;
                 colorTimer = 0.0f;
-                // Vraćanje u idle stanje
                 grid->resetSeats();
                 state = State::Idle;
             }
@@ -202,7 +197,6 @@ void Simulation::updateMovie(float dt)
     movieTimer += dt;
     colorTimer += dt;
 
-    // Svakih 20 frejmova na 75 fps
     if (colorTimer > (1.0f / 75.0f) * 20.0f)
     {
         colorTimer = 0.0f;
@@ -228,14 +222,14 @@ int Simulation::getCurrentScreenIndex() const
 
 void Simulation::draw()
 {
-    // ===== PEOPLE =====
+    //people
     for (auto& p : people)
     {
         unsigned int personTex = TextureManager::get("person" + std::to_string(p.appearanceIndex));
         PersonRenderer::draw(*cubeRenderer, glm::vec3(p.x, p.y, p.z), personTex);
     }
 
-    // ===== SCREEN TEXTURE DURING SIMULATION =====
+    //SCREEN TEXTURE DURING SIMULATION
     if (state != State::Idle)
     {
         int idx = (state == State::MoviePlaying) ? getCurrentScreenIndex() : 1;
@@ -257,7 +251,6 @@ void Simulation::draw()
 Simulation::State Simulation::getState() const {
     return state;
 }
-;
 
 bool Simulation::isMoviePlaying() const
 {
@@ -267,68 +260,4 @@ bool Simulation::isMoviePlaying() const
 float Simulation::getDoorOpen() const
 {
     return doorOpen;
-}
-
-// ===== Person Implementation =====
-
-Person::Person(float startX, float startY, float startZ, Seat* targetSeat, int appearance)
-    : x(startX), y(startY), z(startZ), target(targetSeat),
-      seated(false), hasExited(false), speed(1.5f), stage(0), appearanceIndex(appearance)
-{
-    // Odrediti sa koje strane ulazi (levo ili desno)
-    isLeftSide = (startX < 0.0f);
-}
-
-void Person::update(float dt)
-{
-    if (seated || !target) return;
-
-    // Stage 0: Idi dijagonalno do svog reda (kraj hodnika pored reda)
-    // Stage 1: Idi horizontalno do sedišta
-
-    glm::vec3 targetPos = target->getPosition();
-
-    if (stage == 0)
-    {
-        // Kraj hodnika pored reda - ostaje na strani sa koje je ušao
-        float aisleX = isLeftSide ? -3.5f : 3.5f;  // Levi ili desni hodnik
-        float rowZ = targetPos.z;  // Z koordinata reda
-        float rowY = targetPos.y + 0.5f;  // Y koordinata iznad reda (na nivou osobe koja hoda)
-
-        // Dijagonalno kretanje do kraja hodnika (aisleX, rowY, rowZ)
-        float dx = aisleX - x;
-        float dy = rowY - y;
-        float dz = rowZ - z;
-        float dist = std::sqrt(dx*dx + dy*dy + dz*dz);
-
-        if (dist > 0.1f)
-        {
-            // Krećemo se ka cilju (dijagonalno)
-            x += (dx / dist) * speed * dt;
-            y += (dy / dist) * speed * dt;
-            z += (dz / dist) * speed * dt;
-        }
-        else
-        {
-            stage = 1;  // Stigao do kraja hodnika, sada ulazi u red
-        }
-    }
-    else if (stage == 1)
-    {
-        // Idi horizontalno do sedišta (samo X osa)
-        float dx = targetPos.x - x;
-
-        if (std::fabs(dx) > 0.1f)
-        {
-            x += (dx > 0 ? speed : -speed) * dt;
-        }
-        else
-        {
-            // Stigao do sedišta - sedi na sedište (malo iznad sedišta)
-            x = targetPos.x;
-            y = targetPos.y + 0.5f;  // Na sedištu, ne u sedištu
-            z = targetPos.z;
-            seated = true;
-        }
-    }
 }

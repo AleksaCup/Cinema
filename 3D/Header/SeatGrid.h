@@ -34,12 +34,12 @@ private:
     std::vector<std::vector<Seat>> seats;
     Seat* highlightedSeat = nullptr;
 
-    // Seat dimensions
+    //Seat dimensions
     const float seatW = 0.6f;
     const float seatH = 0.4f;
     const float seatD = 0.5f;
 
-    // Row spacing
+    //Row spacing
     const float rowSpacing = 1.0f;
     const float firstRowZ = 1.5f;
     const float stepHeight = 0.3f;
